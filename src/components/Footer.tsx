@@ -17,7 +17,7 @@ export function Footer() {
               >
                 DevOps-Brasil/Vagas
               </a>
-              {" e "}
+              {" • "}
               <a
                 href="https://github.com/backend-br/vagas"
                 target="_blank"
@@ -25,6 +25,15 @@ export function Footer() {
                 className="text-blue-500 hover:underline"
               >
                 backend-br/vagas
+              </a>
+              {" • "}
+              <a
+                href="https://github.com/frontendbr/vagas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                frontendbr/vagas
               </a>
             </p>
           </div>

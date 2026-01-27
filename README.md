@@ -14,6 +14,7 @@ As vagas são coletadas automaticamente dos seguintes repositórios:
 
 - 🔧 **DevOps**: [DevOps-Brasil/Vagas](https://github.com/DevOps-Brasil/Vagas)
 - ⚙️ **Backend**: [backend-br/vagas](https://github.com/backend-br/vagas)
+- 🎨 **Frontend**: [frontendbr/vagas](https://github.com/frontendbr/vagas)
 
 ## ✨ Features
 
@@ -21,14 +22,14 @@ As vagas são coletadas automaticamente dos seguintes repositórios:
 - 🏷️ **Filtros por categoria**: DevOps, Backend, etc.
 - 🌙 **Dark mode**: Suporte automático a tema claro/escuro
 - 📱 **Responsivo**: Funciona bem em desktop e mobile
-- ⚡ **Rápido**: Cache de dados com Vercel KV
+- ⚡ **Rápido**: Cache de dados com Supabase
 - 🔄 **Atualização diária**: Cron job para buscar novas vagas
 
 ## 🛠️ Stack
 
 - **Framework**: [Next.js 16](https://nextjs.org/) com App Router
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Cache**: [Vercel KV](https://vercel.com/storage/kv)
+- **Cache**: [Supabase](https://supabase.com/)
 - **Deploy**: [Vercel](https://vercel.com/)
 - **Linguagem**: TypeScript
 
@@ -56,11 +57,9 @@ Para desenvolvimento local, você pode criar um arquivo `.env.local`:
 # Opcional: Token do GitHub para maior rate limit
 GITHUB_TOKEN=your_github_token
 
-# Opcional: Para usar Vercel KV localmente
-KV_URL=your_kv_url
-KV_REST_API_URL=your_kv_rest_api_url
-KV_REST_API_TOKEN=your_kv_rest_api_token
-KV_REST_API_READ_ONLY_TOKEN=your_kv_read_only_token
+# Supabase (configurado automaticamente pelo Vercel Marketplace)
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # Opcional: Secret para proteger o endpoint de cron
 CRON_SECRET=your_cron_secret

@@ -17,4 +17,12 @@ export const CATEGORIES: Category[] = [
     owner: "backend-br",
     color: "#10B981", // green
   },
+  {
+    id: "frontend",
+    name: "Frontend",
+    emoji: "🎨",
+    repo: "vagas",
+    owner: "frontendbr",
+    color: "#F59E0B", // amber
+  },
 ];
