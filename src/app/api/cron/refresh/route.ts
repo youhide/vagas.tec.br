@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { refreshJobs } from "@/lib/cache";
 
 // This endpoint can be called by Vercel Cron to refresh jobs daily
@@ -14,6 +15,9 @@ export async function GET(request: Request) {
 
   try {
     const data = await refreshJobs();
+
+    // Revalidate the home page to show new jobs
+    revalidatePath("/");
 
     return NextResponse.json({
       success: true,
