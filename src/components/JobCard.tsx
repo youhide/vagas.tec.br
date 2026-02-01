@@ -5,17 +5,16 @@ import { formatDistanceToNow } from "@/lib/utils";
 
 interface JobCardProps {
   job: Job;
+  onClick: () => void;
 }
 
-export function JobCard({ job }: JobCardProps) {
+export function JobCard({ job, onClick }: JobCardProps) {
   const timeAgo = formatDistanceToNow(new Date(job.createdAt));
 
   return (
-    <a
-      href={job.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-lg transition-all duration-200 group"
+    <button
+      onClick={onClick}
+      className="block w-full text-left bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-5 hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-lg transition-all duration-200 group cursor-pointer"
     >
       <div className="flex items-start gap-3">
         <div
@@ -60,6 +59,6 @@ export function JobCard({ job }: JobCardProps) {
           )}
         </div>
       </div>
-    </a>
+    </button>
   );
 }

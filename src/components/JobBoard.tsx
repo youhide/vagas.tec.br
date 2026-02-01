@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Job, Category } from "@/types/job";
 import { JobCard } from "./JobCard";
+import { JobModal } from "./JobModal";
 import { CategoryFilter } from "./CategoryFilter";
 import { SearchBar } from "./SearchBar";
 
@@ -15,6 +16,7 @@ interface JobBoardProps {
 export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   const jobCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -70,7 +72,7 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredJobs.map((job) => (
-          <JobCard key={job.id} job={job} />
+          <JobCard key={job.id} job={job} onClick={() => setSelectedJob(job)} />
         ))}
       </div>
 
@@ -88,6 +90,10 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
             </button>
           )}
         </div>
+      )}
+
+      {selectedJob && (
+        <JobModal job={selectedJob} onClose={() => setSelectedJob(null)} />
       )}
     </div>
   );
