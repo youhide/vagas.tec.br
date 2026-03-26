@@ -18,13 +18,6 @@ CREATE POLICY "Allow public read access" ON jobs_cache
   FOR SELECT
   USING (true);
 
--- Política para permitir insert/update com anon key
--- Nota: Em produção, você pode querer usar service_role key para writes
-CREATE POLICY "Allow public insert" ON jobs_cache
-  FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Allow public update" ON jobs_cache
-  FOR UPDATE
-  USING (true)
-  WITH CHECK (true);
+-- Escrita somente via service_role key (bypassa RLS automaticamente)
+-- NÃO criar políticas de INSERT/UPDATE com anon key em produção
+-- O service_role key deve ser usado apenas no servidor (nunca expor no client)

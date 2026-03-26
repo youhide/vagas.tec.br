@@ -35,6 +35,33 @@ export function Footer() {
               >
                 frontendbr/vagas
               </a>
+              {" • "}
+              <a
+                href="https://github.com/react-brasil/vagas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                react-brasil/vagas
+              </a>
+              {" • "}
+              <a
+                href="https://github.com/androiddevbr/vagas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                androiddevbr/vagas
+              </a>
+              {" • "}
+              <a
+                href="https://github.com/phpdevbr/vagas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                phpdevbr/vagas
+              </a>
             </p>
           </div>
 

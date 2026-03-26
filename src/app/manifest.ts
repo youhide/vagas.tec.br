@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "vagas.tec.br - Vagas de Tecnologia",
     short_name: "vagas.tec.br",
     description:
-      "Encontre vagas de DevOps, Backend e tecnologia das maiores comunidades brasileiras.",
+      "Encontre vagas de DevOps, Backend, Frontend, React, Android e PHP das maiores comunidades brasileiras.",
     start_url: "/",
     display: "standalone",
     background_color: "#fafafa",

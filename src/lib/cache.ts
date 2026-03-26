@@ -1,7 +1,7 @@
 import { JobsData } from "@/types/job";
 import { CATEGORIES } from "./categories";
 import { fetchAllJobs } from "./github";
-import { supabase } from "./supabase";
+import { supabase, supabaseAdmin } from "./supabase";
 
 const CACHE_KEY = "jobs_data";
 const CACHE_TTL_HOURS = 24;
@@ -46,10 +46,10 @@ export async function refreshJobs(): Promise<JobsData> {
     categories: CATEGORIES,
   };
 
-  // Try to cache the data in Supabase
-  if (supabase) {
+  // Try to cache the data in Supabase (requires service_role key)
+  if (supabaseAdmin) {
     try {
-      const { error } = await supabase.from("jobs_cache").upsert(
+      const { error } = await supabaseAdmin.from("jobs_cache").upsert(
         {
           id: CACHE_KEY,
           data: data,
@@ -63,7 +63,7 @@ export async function refreshJobs(): Promise<JobsData> {
       } else {
         console.log("Jobs cached successfully in Supabase");
       }
-    } catch (error) {
+    } catch {
       console.log("Could not cache jobs (Supabase not available)");
     }
   }

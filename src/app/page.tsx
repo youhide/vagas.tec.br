@@ -6,6 +6,7 @@ import { getJobsDirect } from "@/lib/cache";
 import { GitHubRateLimitError } from "@/lib/github";
 import { CATEGORIES } from "@/lib/categories";
 import { Job } from "@/types/job";
+import { Suspense } from "react";
 
 // Revalidate every hour
 export const revalidate = 3600;
@@ -60,11 +61,13 @@ export default async function Home() {
           {error ? (
             <RateLimitError resetTime={error.rateLimit.reset} />
           ) : (
-            <JobBoard
-              jobs={jobs}
-              categories={CATEGORIES}
-              lastUpdated={lastUpdated}
-            />
+            <Suspense>
+              <JobBoard
+                jobs={jobs}
+                categories={CATEGORIES}
+                lastUpdated={lastUpdated}
+              />
+            </Suspense>
           )}
         </main>
 
