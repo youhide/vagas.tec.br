@@ -37,7 +37,7 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
     try {
       const stored = localStorage.getItem("vagas-favorites");
       if (stored) return new Set(JSON.parse(stored) as number[]);
-    } catch {}
+    } catch { }
     return new Set<number>();
   });
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -156,11 +156,10 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
         <div className="flex gap-2">
           <button
             onClick={() => setShowFavoritesOnly((v) => !v)}
-            className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${
-              showFavoritesOnly
+            className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${showFavoritesOnly
                 ? "border-pink-300 dark:border-pink-700 bg-pink-50 dark:bg-pink-950/30 text-pink-600 dark:text-pink-400"
                 : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
-            }`}
+              }`}
             aria-label={showFavoritesOnly ? "Mostrar todas as vagas" : "Mostrar somente favoritos"}
             aria-pressed={showFavoritesOnly}
           >
@@ -179,10 +178,10 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
             onChange={(e) => setSortBy(e.target.value as SortOption)}
             className="px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-          <option value="newest">Mais recentes</option>
-          <option value="oldest">Mais antigas</option>
-          <option value="alpha">A → Z</option>
-        </select>
+            <option value="newest">Mais recentes</option>
+            <option value="oldest">Mais antigas</option>
+            <option value="alpha">A → Z</option>
+          </select>
         </div>
       </div>
 
@@ -258,11 +257,10 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
                     )}
                     <button
                       onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === page
+                      className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                           ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900"
                           : "border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      }`}
+                        }`}
                     >
                       {page}
                     </button>

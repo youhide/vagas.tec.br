@@ -43,9 +43,9 @@ export default async function Image() {
             }}
           >
             <svg width="48" height="48" viewBox="0 0 192 192" fill="none">
-              <path d="M56 52 L96 96 L56 140" stroke="white" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" opacity="0.95"/>
-              <path d="M136 52 L96 96 L136 140" stroke="white" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" opacity="0.95"/>
-              <line x1="80" y1="150" x2="112" y2="150" stroke="white" strokeWidth="8" strokeLinecap="round" opacity="0.6"/>
+              <path d="M56 52 L96 96 L56 140" stroke="white" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" opacity="0.95" />
+              <path d="M136 52 L96 96 L136 140" stroke="white" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" opacity="0.95" />
+              <line x1="80" y1="150" x2="112" y2="150" stroke="white" strokeWidth="8" strokeLinecap="round" opacity="0.6" />
             </svg>
           </div>
           <span

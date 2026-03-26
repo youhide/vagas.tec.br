@@ -13,7 +13,7 @@ interface JobModalProps {
   onClose: () => void;
 }
 
-const emptySubscribe = () => () => {};
+const emptySubscribe = () => () => { };
 
 export function JobModal({ job, onClose }: JobModalProps) {
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
