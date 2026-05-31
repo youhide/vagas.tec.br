@@ -25,11 +25,12 @@ function generateWebsiteSchema() {
 export default async function Home() {
   let jobs: Job[] = [];
   let error: GitHubRateLimitError | null = null;
-  const lastUpdated = new Date().toISOString();
+  let lastUpdated = new Date().toISOString();
 
   try {
     const data = await getJobsDirect();
     jobs = data.jobs;
+    lastUpdated = data.lastUpdated;
   } catch (e) {
     if (e instanceof GitHubRateLimitError) {
       error = e;

@@ -6,6 +6,9 @@ import { supabase, supabaseAdmin } from "./supabase";
 const CACHE_KEY = "jobs_data";
 const CACHE_TTL_HOURS = 24;
 
+// Dedupe concurrent refreshes so simultaneous requests share one GitHub fetch
+let refreshPromise: Promise<JobsData> | null = null;
+
 export async function getJobs(): Promise<JobsData> {
   // Try to get from Supabase cache first
   if (supabase) {
@@ -32,8 +35,13 @@ export async function getJobs(): Promise<JobsData> {
     }
   }
 
-  // Fetch fresh data
-  return refreshJobs();
+  // Fetch fresh data (dedupe concurrent callers)
+  if (!refreshPromise) {
+    refreshPromise = refreshJobs().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
 }
 
 export async function refreshJobs(): Promise<JobsData> {

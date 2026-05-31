@@ -37,10 +37,11 @@ export class GitHubRateLimitError extends Error {
 }
 
 function parseRateLimit(headers: Headers): GitHubRateLimit {
+  const resetUnix = parseInt(headers.get("x-ratelimit-reset") || "0") * 1000;
   return {
     limit: parseInt(headers.get("x-ratelimit-limit") || "60"),
     remaining: parseInt(headers.get("x-ratelimit-remaining") || "0"),
-    reset: new Date(parseInt(headers.get("x-ratelimit-reset") || "0") * 1000),
+    reset: new Date(Math.max(Date.now(), resetUnix)),
     used: parseInt(headers.get("x-ratelimit-used") || "0"),
   };
 }
@@ -71,7 +72,7 @@ async function fetchWithRetry(
     // Rate limit hit
     if (response.status === 403 || response.status === 429) {
       if (rateLimit.remaining === 0) {
-        const waitTime = rateLimit.reset.getTime() - Date.now();
+        const waitTime = Math.max(0, rateLimit.reset.getTime() - Date.now());
 
         // If reset is more than 5 minutes away, throw error
         if (waitTime > 5 * 60 * 1000) {
@@ -169,13 +170,23 @@ export async function fetchAllJobs(): Promise<Job[]> {
 
   const allJobs: Job[] = [];
   let hasRateLimitError = false;
+  const failedCategories: string[] = [];
 
-  for (const result of results) {
+  results.forEach((result, index) => {
     if (result.status === "fulfilled") {
       allJobs.push(...result.value);
-    } else if (result.reason instanceof GitHubRateLimitError) {
-      hasRateLimitError = true;
+    } else {
+      failedCategories.push(CATEGORIES[index].id);
+      if (result.reason instanceof GitHubRateLimitError) {
+        hasRateLimitError = true;
+      }
     }
+  });
+
+  if (failedCategories.length > 0 && allJobs.length > 0) {
+    console.warn(
+      `Returning partial results. Failed to fetch: ${failedCategories.join(", ")}`
+    );
   }
 
   if (hasRateLimitError && allJobs.length === 0) {

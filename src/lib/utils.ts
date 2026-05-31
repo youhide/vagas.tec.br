@@ -6,6 +6,7 @@ export function formatDistanceToNow(date: Date): string {
     return "agora mesmo";
   }
 
+
   const diffInMinutes = Math.floor(diffInSeconds / 60);
   if (diffInMinutes < 60) {
     return `há ${diffInMinutes} min`;
@@ -28,7 +29,7 @@ export function formatDistanceToNow(date: Date): string {
 
   const diffInMonths = Math.floor(diffInDays / 30);
   if (diffInMonths < 12) {
-    return `há ${diffInMonths} mês${diffInMonths > 1 ? "es" : ""}`;
+    return `há ${diffInMonths} ${diffInMonths === 1 ? "mês" : "meses"}`;
   }
 
   const diffInYears = Math.floor(diffInDays / 365);
