@@ -1,3 +1,5 @@
+import { CATEGORIES } from "@/lib/categories";
+
 export function Footer() {
   return (
     <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 mt-12">
@@ -7,62 +9,24 @@ export function Footer() {
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Feito com 💜 pela comunidade brasileira de tecnologia
             </p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">
-              As vagas são coletadas dos repositórios:{" "}
-              <a
-                href="https://github.com/DevOps-Brasil/Vagas"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                DevOps-Brasil/Vagas
-              </a>
-              {" • "}
-              <a
-                href="https://github.com/backend-br/vagas"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                backend-br/vagas
-              </a>
-              {" • "}
-              <a
-                href="https://github.com/frontendbr/vagas"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                frontendbr/vagas
-              </a>
-              {" • "}
-              <a
-                href="https://github.com/react-brasil/vagas"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                react-brasil/vagas
-              </a>
-              {" • "}
-              <a
-                href="https://github.com/androiddevbr/vagas"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                androiddevbr/vagas
-              </a>
-              {" • "}
-              <a
-                href="https://github.com/phpdevbr/vagas"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                phpdevbr/vagas
-              </a>
+            <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2">
+              Vagas coletadas dos repositórios das comunidades:
             </p>
+            <div className="flex flex-wrap justify-center md:justify-start gap-1.5 mt-2">
+              {CATEGORIES.map((category) => (
+                <a
+                  key={category.id}
+                  href={`https://github.com/${category.owner}/${category.repo}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`${category.owner}/${category.repo}`}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-blue-500 hover:border-blue-300 dark:hover:border-blue-700 transition-colors"
+                >
+                  <span aria-hidden="true">{category.emoji}</span>
+                  <span>{category.name}</span>
+                </a>
+              ))}
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
