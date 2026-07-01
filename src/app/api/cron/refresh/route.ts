@@ -20,12 +20,15 @@ export async function GET(request: Request) {
   try {
     const data = await refreshJobs();
 
-    // Revalidate the home page to show new jobs
+    // Revalidate the home page and job pages to show new/closed jobs
     revalidatePath("/");
+    revalidatePath("/vaga/[id]", "page");
 
     return NextResponse.json({
       success: true,
       jobsCount: data.jobs.length,
+      closedCount: data.closedCount,
+      failedCategories: data.failedCategoryIds,
       lastUpdated: data.lastUpdated,
     });
   } catch (error) {

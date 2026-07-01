@@ -83,6 +83,11 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://vagas.tec.br",
+    types: {
+      "application/rss+xml": [
+        { url: "/feed.xml", title: "vagas.tec.br - Vagas de Tecnologia" },
+      ],
+    },
   },
   category: "technology",
 };

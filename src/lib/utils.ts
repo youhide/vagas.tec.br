@@ -39,3 +39,24 @@ export function formatDistanceToNow(date: Date): string {
 export function cn(...classes: (string | undefined | boolean)[]): string {
   return classes.filter(Boolean).join(" ");
 }
+
+// Reduz markdown a texto corrido para excerpts e meta descriptions
+export function stripMarkdown(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+>]\s+/gm, "")
+    .replace(/[*_~]{1,3}([^*_~]+)[*_~]{1,3}/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function excerptFromMarkdown(body: string, maxLength = 200): string {
+  const text = stripMarkdown(body);
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength).trimEnd()}…`;
+}

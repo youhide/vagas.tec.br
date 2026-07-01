@@ -79,9 +79,9 @@ export default async function Image() {
           <span>•</span>
           <span>⚙️ Backend</span>
           <span>•</span>
-          <span>� Frontend</span>
+          <span>🎨 Frontend</span>
           <span>•</span>
-          <span>�🇧🇷 Brasil</span>
+          <span>🇧🇷 Brasil</span>
         </div>
       </div>
     ),

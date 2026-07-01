@@ -1,5 +1,6 @@
 import { Job, Category, Label } from "@/types/job";
 import { CATEGORIES } from "./categories";
+import { parseLocationType, parseSeniority } from "./parse";
 
 interface GitHubIssue {
   id: number;
@@ -17,6 +18,8 @@ interface GitHubIssue {
     avatar_url: string;
   } | null;
   state: string;
+  // Presente quando a "issue" é na verdade um pull request
+  pull_request?: unknown;
 }
 
 export interface GitHubRateLimit {
@@ -50,7 +53,7 @@ async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchWithRetry(
+export async function fetchWithRetry(
   url: string,
   headers: HeadersInit,
   retries = 3,
@@ -125,43 +128,52 @@ async function fetchIssuesFromRepo(category: Category): Promise<Job[]> {
     const issues: GitHubIssue[] = await response.json();
 
     return issues
+      // O endpoint de issues também retorna PRs (ex.: bumps do Dependabot)
+      .filter((issue) => !issue.pull_request)
       .filter((issue) => !issue.title.toLowerCase().includes("template"))
-      .map((issue) => ({
-        id: issue.id,
-        title: issue.title,
-        body: issue.body || "",
-        url: issue.html_url,
-        labels: issue.labels.map(
+      .map((issue) => {
+        const labels = issue.labels.map(
           (label): Label => ({
             name: label.name,
             color: `#${label.color}`,
           })
-        ),
-        createdAt: issue.created_at,
-        updatedAt: issue.updated_at,
-        author: issue.user?.login || "Unknown",
-        authorAvatar: issue.user?.avatar_url || "",
-        repository: `${category.owner}/${category.repo}`,
-        category,
-      }));
-  } catch (error) {
-    if (error instanceof GitHubRateLimitError) {
-      console.error(
-        `Rate limit exceeded for ${category.owner}/${category.repo}. ` +
-        `Resets at ${error.rateLimit.reset.toLocaleString()}`
-      );
-      throw error; // Re-throw to handle at higher level
-    }
+        );
 
+        return {
+          id: issue.id,
+          title: issue.title,
+          body: issue.body || "",
+          url: issue.html_url,
+          labels,
+          createdAt: issue.created_at,
+          updatedAt: issue.updated_at,
+          author: issue.user?.login || "Unknown",
+          authorAvatar: issue.user?.avatar_url || "",
+          repository: `${category.owner}/${category.repo}`,
+          category,
+          locationType: parseLocationType(issue.title, labels),
+          seniority: parseSeniority(issue.title, labels),
+        };
+      });
+  } catch (error) {
     console.error(
       `Failed to fetch issues from ${category.owner}/${category.repo}:`,
       error
     );
-    return [];
+    // Re-throw so callers can distinguish a failed category from an empty
+    // one — closing jobs based on a silently-empty result would mark every
+    // job in the category as closed.
+    throw error;
   }
 }
 
-export async function fetchAllJobs(): Promise<Job[]> {
+export interface FetchAllJobsResult {
+  jobs: Job[];
+  succeededCategoryIds: string[];
+  failedCategoryIds: string[];
+}
+
+export async function fetchAllJobs(): Promise<FetchAllJobsResult> {
   const jobsPromises = CATEGORIES.map((category) =>
     fetchIssuesFromRepo(category)
   );
@@ -170,22 +182,24 @@ export async function fetchAllJobs(): Promise<Job[]> {
 
   const allJobs: Job[] = [];
   let hasRateLimitError = false;
-  const failedCategories: string[] = [];
+  const succeededCategoryIds: string[] = [];
+  const failedCategoryIds: string[] = [];
 
   results.forEach((result, index) => {
     if (result.status === "fulfilled") {
+      succeededCategoryIds.push(CATEGORIES[index].id);
       allJobs.push(...result.value);
     } else {
-      failedCategories.push(CATEGORIES[index].id);
+      failedCategoryIds.push(CATEGORIES[index].id);
       if (result.reason instanceof GitHubRateLimitError) {
         hasRateLimitError = true;
       }
     }
   });
 
-  if (failedCategories.length > 0 && allJobs.length > 0) {
+  if (failedCategoryIds.length > 0 && allJobs.length > 0) {
     console.warn(
-      `Returning partial results. Failed to fetch: ${failedCategories.join(", ")}`
+      `Returning partial results. Failed to fetch: ${failedCategoryIds.join(", ")}`
     );
   }
 
@@ -197,7 +211,9 @@ export async function fetchAllJobs(): Promise<Job[]> {
   }
 
   // Sort by creation date (newest first)
-  return allJobs.sort(
+  allJobs.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
+
+  return { jobs: allJobs, succeededCategoryIds, failedCategoryIds };
 }

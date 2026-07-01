@@ -1,10 +1,10 @@
 "use client";
 
-import { Job } from "@/types/job";
+import { JobSummary } from "@/types/job";
 import { formatDistanceToNow } from "@/lib/utils";
 
 interface JobCardProps {
-  job: Job;
+  job: JobSummary;
   onClick: () => void;
   isFavorite: boolean;
   onToggleFavorite: (id: number) => void;

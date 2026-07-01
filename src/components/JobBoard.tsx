@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Job, Category } from "@/types/job";
+import { JobSummary, Category, LocationType, Seniority } from "@/types/job";
 import { JobCard } from "./JobCard";
 import { JobModal } from "./JobModal";
 import { CategoryFilter } from "./CategoryFilter";
@@ -12,8 +12,28 @@ const JOBS_PER_PAGE = 21;
 
 type SortOption = "newest" | "oldest" | "alpha";
 
+const LOCATION_OPTIONS: Array<{ value: LocationType; label: string }> = [
+  { value: "remoto", label: "Remoto" },
+  { value: "hibrido", label: "Híbrido" },
+  { value: "presencial", label: "Presencial" },
+];
+
+const SENIORITY_OPTIONS: Array<{ value: Seniority; label: string }> = [
+  { value: "junior", label: "Júnior" },
+  { value: "pleno", label: "Pleno" },
+  { value: "senior", label: "Sênior" },
+];
+
+function isLocationType(value: string | null): value is LocationType {
+  return LOCATION_OPTIONS.some((option) => option.value === value);
+}
+
+function isSeniority(value: string | null): value is Seniority {
+  return SENIORITY_OPTIONS.some((option) => option.value === value);
+}
+
 interface JobBoardProps {
-  jobs: Job[];
+  jobs: JobSummary[];
   categories: Category[];
   lastUpdated: string;
 }
@@ -27,10 +47,22 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
   );
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobSummary | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortOption>(
     (searchParams.get("sort") as SortOption) || "newest"
+  );
+  const [locationFilter, setLocationFilter] = useState<LocationType | null>(
+    () => {
+      const param = searchParams.get("local");
+      return isLocationType(param) ? param : null;
+    }
+  );
+  const [seniorityFilter, setSeniorityFilter] = useState<Seniority | null>(
+    () => {
+      const param = searchParams.get("nivel");
+      return isSeniority(param) ? param : null;
+    }
   );
   const [favorites, setFavorites] = useState<Set<number>>(() => {
     if (typeof window === "undefined") return new Set<number>();
@@ -64,12 +96,14 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
     if (debouncedSearch) params.set("q", debouncedSearch);
     if (selectedCategory) params.set("cat", selectedCategory);
     if (sortBy !== "newest") params.set("sort", sortBy);
+    if (locationFilter) params.set("local", locationFilter);
+    if (seniorityFilter) params.set("nivel", seniorityFilter);
     const qs = params.toString();
     router.replace(qs ? `?${qs}` : "/", { scroll: false });
-  }, [debouncedSearch, selectedCategory, sortBy, router]);
+  }, [debouncedSearch, selectedCategory, sortBy, locationFilter, seniorityFilter, router]);
 
   // Reset page when filters change
-  const filterKey = `${debouncedSearch}|${selectedCategory}|${sortBy}|${showFavoritesOnly}`;
+  const filterKey = `${debouncedSearch}|${selectedCategory}|${sortBy}|${showFavoritesOnly}|${locationFilter}|${seniorityFilter}`;
   const stableFilterKey = useMemo(() => filterKey, [filterKey]);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: reset pagination when filters change
@@ -95,12 +129,22 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
       filtered = filtered.filter((job) => job.category.id === selectedCategory);
     }
 
+    if (locationFilter) {
+      filtered = filtered.filter((job) => job.locationType === locationFilter);
+    }
+
+    if (seniorityFilter) {
+      filtered = filtered.filter((job) =>
+        job.seniority.includes(seniorityFilter)
+      );
+    }
+
     if (debouncedSearch.trim()) {
       const query = debouncedSearch.toLowerCase();
       filtered = filtered.filter(
         (job) =>
           job.title.toLowerCase().includes(query) ||
-          job.body.toLowerCase().includes(query) ||
+          job.excerpt.toLowerCase().includes(query) ||
           job.labels.some((label) => label.name.toLowerCase().includes(query))
       );
     }
@@ -115,7 +159,7 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
     }
 
     return filtered;
-  }, [jobs, selectedCategory, debouncedSearch, sortBy, showFavoritesOnly, favorites]);
+  }, [jobs, selectedCategory, debouncedSearch, sortBy, showFavoritesOnly, favorites, locationFilter, seniorityFilter]);
 
   const totalPages = Math.ceil(filteredJobs.length / JOBS_PER_PAGE);
   const paginatedJobs = filteredJobs.slice(
@@ -183,6 +227,43 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
             <option value="alpha">A → Z</option>
           </select>
         </div>
+      </div>
+
+      {/* Facet filters (derived from labels/title) */}
+      <div className="flex flex-wrap items-center gap-2">
+        {LOCATION_OPTIONS.map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() =>
+              setLocationFilter((current) => (current === value ? null : value))
+            }
+            aria-pressed={locationFilter === value}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${locationFilter === value
+                ? "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400"
+                : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              }`}
+          >
+            {label}
+          </button>
+        ))}
+        <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-800" aria-hidden="true" />
+        {SENIORITY_OPTIONS.map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() =>
+              setSeniorityFilter((current) =>
+                current === value ? null : value
+              )
+            }
+            aria-pressed={seniorityFilter === value}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${seniorityFilter === value
+                ? "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400"
+                : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Job count */}
@@ -279,7 +360,11 @@ export function JobBoard({ jobs, categories, lastUpdated }: JobBoardProps) {
       )}
 
       {selectedJob && (
-        <JobModal job={selectedJob} onClose={() => setSelectedJob(null)} />
+        <JobModal
+          key={selectedJob.id}
+          job={selectedJob}
+          onClose={() => setSelectedJob(null)}
+        />
       )}
     </div>
   );

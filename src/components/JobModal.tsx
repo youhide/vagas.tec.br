@@ -1,6 +1,6 @@
 "use client";
 
-import { Job } from "@/types/job";
+import { JobSummary } from "@/types/job";
 import { formatDistanceToNow } from "@/lib/utils";
 import { useEffect, useCallback, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
@@ -9,15 +9,44 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 
 interface JobModalProps {
-  job: Job;
+  job: JobSummary;
   onClose: () => void;
 }
 
 const emptySubscribe = () => () => { };
 
+type BodyState =
+  | { status: "loading" }
+  | { status: "error" }
+  | { status: "ready"; body: string };
+
 export function JobModal({ job, onClose }: JobModalProps) {
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [copied, setCopied] = useState(false);
+  const [bodyState, setBodyState] = useState<BodyState>({ status: "loading" });
+
+  // O corpo markdown não vem na listagem (payload); busca sob demanda.
+  // O estado inicial já é "loading" e o componente é montado com key={job.id},
+  // então não há reset síncrono aqui.
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch(`/api/vagas/${job.id}`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((data: { body: string }) =>
+        setBodyState({ status: "ready", body: data.body })
+      )
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        console.error("Failed to load job body:", error);
+        setBodyState({ status: "error" });
+      });
+
+    return () => controller.abort();
+  }, [job.id]);
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const timeAgo = formatDistanceToNow(new Date(job.createdAt));
@@ -155,9 +184,9 @@ export function JobModal({ job, onClose }: JobModalProps) {
                 key={label.name}
                 className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
                 style={{
-                  backgroundColor: `#${label.color}20`,
-                  color: `#${label.color}`,
-                  border: `1px solid #${label.color}40`,
+                  backgroundColor: `${label.color}20`,
+                  color: label.color,
+                  border: `1px solid ${label.color}40`,
                 }}
               >
                 {label.name}
@@ -171,17 +200,40 @@ export function JobModal({ job, onClose }: JobModalProps) {
           <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
             Descrição
           </h3>
-          {job.body ? (
-            <div className="prose prose-sm dark:prose-invert prose-zinc max-w-none prose-a:text-blue-500 prose-a:no-underline hover:prose-a:underline prose-pre:bg-zinc-100 dark:prose-pre:bg-zinc-800 prose-code:text-sm">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize]}>
-                {job.body}
-              </ReactMarkdown>
+          {bodyState.status === "loading" && (
+            <div className="space-y-3 animate-pulse" aria-hidden="true">
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4" />
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-full" />
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6" />
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-2/3" />
             </div>
-          ) : (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 italic">
-              Sem descrição disponível.
+          )}
+          {bodyState.status === "error" && (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Não foi possível carregar a descrição.{" "}
+              <a
+                href={job.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                Veja a vaga no GitHub
+              </a>
+              .
             </p>
           )}
+          {bodyState.status === "ready" &&
+            (bodyState.body ? (
+              <div className="prose prose-sm dark:prose-invert prose-zinc max-w-none prose-a:text-blue-500 prose-a:no-underline hover:prose-a:underline prose-pre:bg-zinc-100 dark:prose-pre:bg-zinc-800 prose-code:text-sm">
+                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize]}>
+                  {bodyState.body}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 italic">
+                Sem descrição disponível.
+              </p>
+            ))}
         </div>
 
         {/* Footer with link + share */}

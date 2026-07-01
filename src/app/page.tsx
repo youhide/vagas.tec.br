@@ -2,10 +2,11 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JobBoard } from "@/components/JobBoard";
 import { RateLimitError } from "@/components/RateLimitError";
-import { getJobsDirect } from "@/lib/cache";
+import { getOpenJobs } from "@/lib/cache";
 import { GitHubRateLimitError } from "@/lib/github";
 import { CATEGORIES } from "@/lib/categories";
-import { Job } from "@/types/job";
+import { excerptFromMarkdown } from "@/lib/utils";
+import { Job, JobSummary } from "@/types/job";
 import { Suspense } from "react";
 
 // Revalidate every hour
@@ -22,14 +23,19 @@ function generateWebsiteSchema() {
   };
 }
 
+function toSummary(job: Job): JobSummary {
+  const { body, ...rest } = job;
+  return { ...rest, excerpt: excerptFromMarkdown(body) };
+}
+
 export default async function Home() {
-  let jobs: Job[] = [];
+  let jobs: JobSummary[] = [];
   let error: GitHubRateLimitError | null = null;
   let lastUpdated = new Date().toISOString();
 
   try {
-    const data = await getJobsDirect();
-    jobs = data.jobs;
+    const data = await getOpenJobs();
+    jobs = data.jobs.map(toSummary);
     lastUpdated = data.lastUpdated;
   } catch (e) {
     if (e instanceof GitHubRateLimitError) {

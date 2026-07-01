@@ -49,4 +49,20 @@ export const CATEGORIES: Category[] = [
     owner: "phpdevbr",
     color: "#818CF8", // indigo
   },
+  {
+    id: "java",
+    name: "Java",
+    emoji: "☕",
+    repo: "vagas-java",
+    owner: "soujava",
+    color: "#EF4444", // red
+  },
+  {
+    id: "dados",
+    name: "Dados",
+    emoji: "📊",
+    repo: "vagas",
+    owner: "datascience-br",
+    color: "#F97316", // orange
+  },
 ];
