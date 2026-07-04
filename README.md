@@ -15,11 +15,18 @@ As vagas são coletadas automaticamente dos seguintes repositórios:
 - 🔧 **DevOps**: [DevOps-Brasil/Vagas](https://github.com/DevOps-Brasil/Vagas)
 - ⚙️ **Backend**: [backend-br/vagas](https://github.com/backend-br/vagas)
 - 🎨 **Frontend**: [frontendbr/vagas](https://github.com/frontendbr/vagas)
+- ⚛️ **React**: [react-brasil/vagas](https://github.com/react-brasil/vagas)
+- 📱 **Android**: [androiddevbr/vagas](https://github.com/androiddevbr/vagas)
+- 🐘 **PHP**: [phpdevbr/vagas](https://github.com/phpdevbr/vagas)
+- ☕ **Java**: [soujava/vagas-java](https://github.com/soujava/vagas-java)
+- 📊 **Dados**: [datascience-br/vagas](https://github.com/datascience-br/vagas)
 
 ## ✨ Features
 
 - 🔍 **Busca**: Pesquise vagas por título, descrição ou labels
-- 🏷️ **Filtros por categoria**: DevOps, Backend, etc.
+- 🏷️ **Filtros por categoria**: DevOps, Backend, Frontend, React, Android, PHP, Java e Dados
+- 📝 **Markdown**: Descrições das vagas renderizadas em Markdown
+- 📡 **RSS**: Feed de vagas disponível em `/feed.xml`
 - 🌙 **Dark mode**: Suporte automático a tema claro/escuro
 - 📱 **Responsivo**: Funciona bem em desktop e mobile
 - ⚡ **Rápido**: Cache de dados com Supabase
@@ -27,9 +34,11 @@ As vagas são coletadas automaticamente dos seguintes repositórios:
 
 ## 🛠️ Stack
 
-- **Framework**: [Next.js 16](https://nextjs.org/) com App Router
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Framework**: [Next.js 16](https://nextjs.org/) com App Router e React 19
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Markdown**: [react-markdown](https://github.com/remarkjs/react-markdown) com `remark-gfm` e `rehype-sanitize`
 - **Cache**: [Supabase](https://supabase.com/)
+- **Testes**: [Vitest](https://vitest.dev/) e Testing Library
 - **Deploy**: [Vercel](https://vercel.com/)
 - **Linguagem**: TypeScript
 
@@ -48,6 +57,15 @@ pnpm dev
 ```
 
 Acesse [http://localhost:3000](http://localhost:3000).
+
+Outros comandos úteis:
+
+```bash
+pnpm build      # Build de produção
+pnpm lint       # Lint com ESLint
+pnpm typecheck  # Checagem de tipos com TypeScript
+pnpm test       # Roda os testes com Vitest
+```
 
 ## ⚙️ Variáveis de Ambiente
 
